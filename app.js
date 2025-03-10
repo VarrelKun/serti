@@ -6,11 +6,15 @@ const app = express();
 const PORT = 3000;
 
 // Daftarkan font OTF/TTF
-const fontPath = path.join(__dirname, "mY.otf"); // Ganti dengan font yang sesuai
+const fontPath = path.join(__dirname, "mY.otf");
 registerFont(fontPath, { family: "MyFont" });
+
+const aFontPath = path.join(__dirname, "Azonix.otf");
+registerFont(aFontPath, { family: "AFont" });
 
 const templatePath = path.join(__dirname, "mY.png");
 const editorPath = path.join(__dirname, "edit.png");
+const yappingPath = path.join(__dirname, "yapping.png");
 
 app.get("/mlbb/:username", async (req, res) => {
     const { username } = req.params;
@@ -63,6 +67,40 @@ app.get("/editor/:username", async (req, res) => {
         const textWidth = ctx.measureText(username.toUpperCase()).width;
         const x = img.width / 2; // Tengah gambar
         const y = 620; // Posisi vertikal
+
+        // Gambar teks di posisi tengah
+        ctx.fillText(username.toUpperCase(), x, y);
+
+        // Kirim gambar sebagai respons
+        res.set("Content-Type", "image/png");
+        res.send(canvas.toBuffer("image/png"));
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error processing image");
+    }
+});
+
+app.get("/yapping/:username", async (req, res) => {
+    const { username } = req.params;
+
+    try {
+        const img = await loadImage(yappingPath);
+        const canvas = createCanvas(img.width, img.height);
+        const ctx = canvas.getContext("2d");
+
+        // Gambar template ke canvas
+        ctx.drawImage(img, 0, 0);
+
+        // Atur teks
+        ctx.font = "120px AFont"; // Ukuran besar sesuai template
+        ctx.fillStyle = "black"; // Warna teks
+        ctx.textAlign = "center"; // Pastikan teks rata tengah
+
+        // Hitung posisi tengah
+        const textWidth = ctx.measureText(username.toUpperCase()).width;
+        const x = img.width / 2; // Tengah gambar
+        const y = 600; // Posisi vertikal
 
         // Gambar teks di posisi tengah
         ctx.fillText(username.toUpperCase(), x, y);
